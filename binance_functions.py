@@ -1,10 +1,27 @@
 import requests
+import pandas as pd
 api_endpoint = "https://api.binance.com/api/v3/klines"
 
 
 def get_candles(symbol, num_candles, interval="1h"):
     get_params = {"symbol": symbol, "interval": interval, "limit": num_candles}
     r = requests.get(api_endpoint, params=get_params)
-    return r.json()
+    if "code" in r.json():
+        raise Exception("Error in Binance API Call")
+    return pd.read_json(r.text).drop([5, 6, 7, 8, 9, 10, 11], axis=1)
 
-# print(get_candles("BNBBUSD", 24))
+
+
+def format_candles_for_plotly(pandas_candles):
+
+    plotly_trace = {
+        "x": pandas_candles[0].values.tolist(),
+        "open": pandas_candles[1].values.tolist(),
+        "high": pandas_candles[2].values.tolist(),
+        "low": pandas_candles[3].values.tolist(),
+        "close": pandas_candles[4].values.tolist(),
+        
+        "type": "candlestick"
+    }
+
+    return plotly_trace

@@ -1,5 +1,7 @@
 import pandas as pd
 
+
+#custom Modules
 import regression_model as reg
 import binance_functions as bn
 import my_logging as log
@@ -13,6 +15,7 @@ CANDLES_BACK_STOP_LOSS = 2
 
 print(bn.get_candles("BNBBUSD", NUM_CANDLES))
 
+print(reg.model([1.4,6,1,9]))
 
 
 
