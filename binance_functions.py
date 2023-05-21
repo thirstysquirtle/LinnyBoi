@@ -8,7 +8,9 @@ def get_candles(symbol, num_candles, interval="1h"):
     r = requests.get(api_endpoint, params=get_params)
     if "code" in r.json():
         raise Exception("Error in Binance API Call")
-    return pd.read_json(r.text).drop([5, 6, 7, 8, 9, 10, 11], axis=1)
+    candles_dataframe = pd.read_json(r.text).drop([5, 6, 7, 8, 9, 10, 11], axis=1)
+    candles_dataframe.columns = ["Time_Open", "Open", "High", "Low", "Close"]
+    return  candles_dataframe
 
 
 

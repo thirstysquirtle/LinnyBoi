@@ -5,7 +5,7 @@ async function main() {
     }
 
     document.getElementById("test").addEventListener("click", async () => {
-        let data = [await sfetch("test")]
+        let data = await sfetch("test")
         let bg_color = "antiquewhite"
         let layout = {
                 title: "bardo est sus",
@@ -15,7 +15,7 @@ async function main() {
                     type: "date"
                 }   
             }
-
+        console.log(data)
         Plotly.newPlot("plot1", data, layout)
         
     })

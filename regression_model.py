@@ -2,6 +2,8 @@ import torch as t
 import torch.nn as nn
 import torch.nn.functional as F
 import binance_functions as bn
+import numpy as np
+import math
 
 device="cpu"
 
@@ -67,17 +69,34 @@ def get_future_prediction_xy(model, Xses):
     return [x, y]
 
 
+
 model = Model().to(device)
+def format_regression_for_plotly(Xses):
+    length = len(Xses)
+    x = (Xses[length - 1] - Xses[length - 2]) + Xses[length - 1]
+    Xses = list(Xses)
+    Xses.append(x)
+    Xses_proxy = [i for i in range(len(Xses))]
+    with t.no_grad():
+        y_preds = model(Xses_proxy)
+    return {
+        "x": [int(i) for i in Xses], 
+        "y": [round(i,1) for i in y_preds.squeeze().tolist()],
+        "type": "scatter"
+    }
+
+
 candles = bn.get_candles("BNBBUSD", 24)
 Xses = candles[0].values
 # print(get_targets(candles))
 # print(model(candles[0]))
 # print()
 losses = model.train_model(Xses, get_targets(candles), num_epochs=80000)
-print(get_future_prediction_xy(model, Xses))
+# print(get_future_prediction_xy(model, Xses))
 
 print(f"loss: {losses[len(losses)-1]}")
 # print(model(Xses_proxy))
 # print(model.optimizer.param_groups[0]["lr"])
-print(Xses)
-print(model([i for i in range(len(Xses))]))
+# print(Xses)
+# print(model([i for i in range(len(Xses))]))
+# print(get_plotly_reg_trace(Xses))
