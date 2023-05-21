@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import binance_functions as bn
 import numpy as np
-import math
+from collections import namedtuple
 
 device="cpu"
 
@@ -39,10 +39,9 @@ class Model(nn.Module):
         return self.optimizer.param_groups[0]["lr"]
         
 
-    def train_model(self, Xses, targets, num_epochs=1000 , loss_fn=F.mse_loss):
+    def train_model(self, Xses, targets, num_epochs=80000 , loss_fn=F.mse_loss):
         Xses_proxy = [i for i in range(len(Xses))]
         loss_per_epoch = []
-        print("debug " + str(Xses_proxy) )
         for i in range(num_epochs):
             preds = self.forward(Xses_proxy)
             loss = loss_fn(preds, targets)
@@ -59,14 +58,16 @@ class Model(nn.Module):
 
         return loss_per_epoch
 
-def get_targets(pandas_candles):
-    return (f32t(pandas_candles[2] + pandas_candles[3])/2).unsqueeze(dim=1)
+def get_candle_middle(pandas_candles):
+    return (f32t(pandas_candles["High"] + pandas_candles["Low"])/2).unsqueeze(dim=1)
     
 def get_future_prediction_xy(model, Xses):
-    y = model([len(Xses)])
+    Prediction = namedtuple("Prediction", "x y")
+    with t.no_grad():
+        y = model([len(Xses)])
     length = len(Xses)
     x = (Xses[length - 1] - Xses[length - 2]) + Xses[length - 1]
-    return [x, y]
+    return Prediction(x, y.item())
 
 
 
@@ -81,22 +82,11 @@ def format_regression_for_plotly(Xses):
         y_preds = model(Xses_proxy)
     return {
         "x": [int(i) for i in Xses], 
-        "y": [round(i,1) for i in y_preds.squeeze().tolist()],
+        "y": y_preds.squeeze().tolist(),
         "type": "scatter"
     }
 
 
-candles = bn.get_candles("BNBBUSD", 24)
-Xses = candles[0].values
-# print(get_targets(candles))
-# print(model(candles[0]))
-# print()
-losses = model.train_model(Xses, get_targets(candles), num_epochs=80000)
-# print(get_future_prediction_xy(model, Xses))
+# losses = model.train_model(Xses, get_targets(candles), num_epochs=80000)
 
-print(f"loss: {losses[len(losses)-1]}")
-# print(model(Xses_proxy))
-# print(model.optimizer.param_groups[0]["lr"])
-# print(Xses)
-# print(model([i for i in range(len(Xses))]))
-# print(get_plotly_reg_trace(Xses))
+# print(f"loss: {losses[len(losses)-1]}")

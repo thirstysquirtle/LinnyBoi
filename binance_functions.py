@@ -17,11 +17,11 @@ def get_candles(symbol, num_candles, interval="1h"):
 def format_candles_for_plotly(pandas_candles):
 
     plotly_trace = {
-        "x": pandas_candles[0].values.tolist(),
-        "open": pandas_candles[1].values.tolist(),
-        "high": pandas_candles[2].values.tolist(),
-        "low": pandas_candles[3].values.tolist(),
-        "close": pandas_candles[4].values.tolist(),
+        "x": pandas_candles["Time_Open"].values.tolist(),
+        "open": pandas_candles["Open"].values.tolist(),
+        "high": pandas_candles["High"].values.tolist(),
+        "low": pandas_candles["Low"].values.tolist(),
+        "close": pandas_candles["Close"].values.tolist(),
         
         "type": "candlestick"
     }

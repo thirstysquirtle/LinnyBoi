@@ -1,23 +1,20 @@
-import pandas as pd
-
-
-#custom Modules
-import regression_model as reg
-import binance_functions as bn
-import my_logging as log
-NUM_CANDLES = 12
+NUM_CANDLES = 24
+SYMBOL = "BNBBUSD"
 
 TIME_INTERVAL = "1h"
 
-SNAPSHOT_TIMEPADDING = 5
 RISK_PER_TRADE_IN_PERCENT = 2
 CANDLES_BACK_STOP_LOSS = 2
 
-print(bn.get_candles("BNBBUSD", NUM_CANDLES))
+#my modules
+import binance_functions as bn
+import regression_model as reg
+import my_logging as log
 
-print(reg.model([1.4,6,1,9]))
+timeKeeper = {}
 
+candles = bn.get_candles(SYMBOL, NUM_CANDLES, interval=TIME_INTERVAL)
+reg.model.train_model(candles["Time_Open"], reg.get_candle_middle(candles), num_epochs=80000)
 
+print(reg.get_future_prediction_xy(reg.model, candles["Time_Open"]))
 
-
-print(reg.model)
